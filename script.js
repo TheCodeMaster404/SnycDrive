@@ -58,30 +58,31 @@ function logout() {
 /* File Actions */
 async function handleFileUpload(input) {
     const formData = new FormData();
-    
-    // Add all selected files to the "package"
     for (let file of input.files) {
         formData.append('files', file);
     }
 
     try {
-        // Send the package to your computer's server
-        const response = await fetch('http://localhost:3000/upload', {
+        // Update this URL to your Render link
+        const response = await fetch('https://your-app.onrender.com/upload', {
             method: 'POST',
             body: formData
         });
 
-        if (response.ok) {
-            alert("Files saved directly to your Hard Drive!");
-            // Update your local list to show the new files
-            Array.from(input.files).forEach(file => {
-                files.push({ name: file.name, size: file.size / (1024**3), type: file.type });
+        const uploadedFiles = await response.json();
+
+        uploadedFiles.forEach(file => {
+            files.push({
+                name: file.name,
+                size: file.size / (1024**3),
+                data: file.url // This is now the permanent Cloudinary link!
             });
-            saveAndRefresh();
-        }
+        });
+
+        saveAndRefresh();
+        alert("Files uploaded to the Cloud successfully!");
     } catch (error) {
-        console.error("Error uploading:", error);
-        alert("Server is not running. Make sure to start server.js!");
+        alert("Cloud server is sleeping or down. Please wait a moment.");
     }
 }
 
